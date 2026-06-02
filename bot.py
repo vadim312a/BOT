@@ -2,7 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 import os
 
-TOKEN = "8965348909:AAHFK4B5HyHZ9JHg4hhdLt-eQG36wXBZaBc"
+TOKEN = "8965348909:AAEicV6KS0pGQ_W-ciJXtuico6IqHMkS-io"
 OWNER_ID = 1460740609
 
 
