@@ -1,11 +1,19 @@
 import requests
 import time
-import subprocess
 import os
+import subprocess
 
 TOKEN = "8965348909:AAHmsgcYX2LhDBbGObiSVej2u7capeJI1tE"
+OWNER_ID = 1460740609
 
 last_update_id = 0
+
+def execute_command(text):
+    if text == "/dota":
+        os.startfile("steam://rungameid/570")
+
+    elif text == "/shutdown":
+        os.system("shutdown /s /t 0")
 
 while True:
     try:
@@ -20,18 +28,16 @@ while True:
 
             last_update_id = update_id
 
-            if "message" not in upd:
+            msg = upd.get("message", {})
+            user_id = msg.get("from", {}).get("id")
+            text = msg.get("text", "")
+
+            if user_id != OWNER_ID:
                 continue
 
-            text = upd["message"].get("text", "")
-
-            if text == "/shutdown":
-                os.system("shutdown /s /t 0")
-
-            elif text == "/dota":
-                os.startfile("steam://rungameid/570")
+            execute_command(text)
 
     except Exception as e:
-        print(e)
+        print("ERROR:", e)
 
-    time.sleep(3)
+    time.sleep(2)

@@ -2,6 +2,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
 from wakeonlan import send_magic_packet
 import os
+import requests
 import platform
 import subprocess
 
@@ -16,16 +17,6 @@ PC_IP = "192.168.0.103"
 
 def is_owner(user_id: int):
     return user_id == OWNER_ID
-
-
-def ping_pc():
-    param = "-n" if platform.system().lower() == "windows" else "-c"
-    command = ["ping", param, "1", PC_IP]
-
-    try:
-        return subprocess.call(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
-    except:
-        return False
 
 
 def menu():
@@ -45,6 +36,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("⚙️ Railway PC Control", reply_markup=menu())
 
 
+# =====================
+# ОТПРАВКА КОМАНД НА ПК ЧЕРЕЗ TELEGRAM
+# =====================
+def send_command(text: str):
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    requests.get(url, params={
+        "chat_id": OWNER_ID,
+        "text": text
+    })
+
+
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
 
@@ -59,20 +61,19 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         send_magic_packet(PC_MAC)
         await query.message.reply_text("🟢 Сигнал на включение отправлен")
 
-    # 🎮 DOTA (Railway НЕ может запускать Steam на твоём ПК)
+    # 🎮 DOTA
     elif query.data == "dota":
-        await query.message.reply_text("🎮 Команда отправлена (Dota запускается на ПК локально)")
-    
-    # 📡 СТАТУС
-    elif query.data == "status":
-        if ping_pc():
-            await query.message.reply_text("🟢 ПК онлайн")
-        else:
-            await query.message.reply_text("🔴 ПК оффлайн")
+        send_command("/dota")
+        await query.message.reply_text("🎮 Запускаю Dota на ПК")
 
-    # 🔴 ВЫКЛ ПК (работает только если бот на самом ПК — тут просто сигнал)
+    # 📡 СТАТУС (простой вариант — позже улучшим агентом)
+    elif query.data == "status":
+        await query.message.reply_text("📡 Статус проверяет агент на ПК")
+
+    # 🔴 ВЫКЛ ПК
     elif query.data == "off":
-        await query.message.reply_text("🔴 Команда выключения отправлена (нужен агент на ПК)")
+        send_command("/shutdown")
+        await query.message.reply_text("🔴 Выключаю ПК")
 
 
 app = Application.builder().token(TOKEN).build()
