@@ -1,48 +1,34 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, ContextTypes
-from wakeonlan import send_magic_packet
 import os
-import requests
 
-# =====================
-TOKEN = os.getenv("TOKEN")
+TOKEN = "8965348909:AAHFK4B5HyHZ9JHg4hhdLt-eQG36wXBZaBc"
 OWNER_ID = 1460740609
 
-PC_MAC = "A8:A1:59:E8:9A:7D"
-# =====================
 
-
-def is_owner(user_id: int):
+def is_owner(user_id):
     return user_id == OWNER_ID
 
 
-def menu():
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("🟢 Включить ПК", callback_data="on")],
-        [InlineKeyboardButton("🎮 Dota 2", callback_data="dota")],
-        [InlineKeyboardButton("📡 Статус ПК", callback_data="status")],
-        [InlineKeyboardButton("🔴 Выключить ПК", callback_data="off")]
-    ])
-
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     if not is_owner(update.effective_user.id):
-        await update.message.reply_text("⛔ Доступ запрещён")
+        await update.message.reply_text("Доступ запрещён")
         return
 
-    await update.message.reply_text("⚙️ PC Control Panel", reply_markup=menu())
+    keyboard = [
+        [InlineKeyboardButton("🎮 Запустить Dota 2", callback_data="dota")],
+        [InlineKeyboardButton("🔴 Выключить ПК", callback_data="shutdown")]
+    ]
 
-
-# =====================
-def send_command(text: str):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    requests.get(url, params={
-        "chat_id": OWNER_ID,
-        "text": text
-    })
+    await update.message.reply_text(
+        "Управление ПК",
+        reply_markup=InlineKeyboardMarkup(keyboard)
+    )
 
 
 async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     query = update.callback_query
 
     if not is_owner(query.from_user.id):
@@ -51,25 +37,13 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await query.answer()
 
-    # 🟢 ВКЛ ПК (Wake-on-LAN)
-    if query.data == "on":
-        send_magic_packet(PC_MAC)
-        await query.message.reply_text("🟢 ПК включается...")
+    if query.data == "dota":
+        os.system('start steam://rungameid/570')
+        await query.message.reply_text("Запускаю Dota 2")
 
-    # 🎮 DOTA
-    elif query.data == "dota":
-        send_command("/dota")
-        await query.message.reply_text("🎮 Запуск Dota отправлен")
-
-    # 📡 СТАТУС
-    elif query.data == "status":
-        send_command("/status")
-        await query.message.reply_text("📡 Проверка статуса...")
-
-    # 🔴 ВЫКЛ ПК
-    elif query.data == "off":
-        send_command("/shutdown")
-        await query.message.reply_text("🔴 Выключение ПК отправлено")
+    elif query.data == "shutdown":
+        await query.message.reply_text("Выключаю ПК")
+        os.system("shutdown /s /t 0")
 
 
 app = Application.builder().token(TOKEN).build()
@@ -77,5 +51,6 @@ app = Application.builder().token(TOKEN).build()
 app.add_handler(CommandHandler("start", start))
 app.add_handler(CallbackQueryHandler(button))
 
-print("🤖 BOT RUNNING (RAILWAY)")
+print("Бот запущен")
+
 app.run_polling()
