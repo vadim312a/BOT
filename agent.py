@@ -2,7 +2,7 @@ import requests
 import time
 import os
 
-TOKEN = "ВСТАВЬ_СЮДА_ТОКЕН"
+TOKEN = "8965348909:AAHmsgcYX2LhDBbGObiSVej2u7capeJI1tE"
 OWNER_ID = 1460740609
 
 last_update_id = 0
