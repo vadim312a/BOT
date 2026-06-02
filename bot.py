@@ -3,15 +3,12 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 from wakeonlan import send_magic_packet
 import os
 import requests
-import platform
-import subprocess
 
 # =====================
 TOKEN = os.getenv("TOKEN")
 OWNER_ID = 1460740609
 
 PC_MAC = "A8:A1:59:E8:9A:7D"
-PC_IP = "192.168.0.103"
 # =====================
 
 
@@ -33,11 +30,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("⛔ Доступ запрещён")
         return
 
-    await update.message.reply_text("⚙️ Railway PC Control", reply_markup=menu())
+    await update.message.reply_text("⚙️ PC Control Panel", reply_markup=menu())
 
 
-# =====================
-# ОТПРАВКА КОМАНД НА ПК ЧЕРЕЗ TELEGRAM
 # =====================
 def send_command(text: str):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
@@ -56,24 +51,25 @@ async def button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await query.answer()
 
-    # 🟢 ВКЛ ПК
+    # 🟢 ВКЛ ПК (Wake-on-LAN)
     if query.data == "on":
         send_magic_packet(PC_MAC)
-        await query.message.reply_text("🟢 Сигнал на включение отправлен")
+        await query.message.reply_text("🟢 ПК включается...")
 
     # 🎮 DOTA
     elif query.data == "dota":
         send_command("/dota")
-        await query.message.reply_text("🎮 Запускаю Dota на ПК")
+        await query.message.reply_text("🎮 Запуск Dota отправлен")
 
-    # 📡 СТАТУС (простой вариант — позже улучшим агентом)
+    # 📡 СТАТУС
     elif query.data == "status":
-        await query.message.reply_text("📡 Статус проверяет агент на ПК")
+        send_command("/status")
+        await query.message.reply_text("📡 Проверка статуса...")
 
     # 🔴 ВЫКЛ ПК
     elif query.data == "off":
         send_command("/shutdown")
-        await query.message.reply_text("🔴 Выключаю ПК")
+        await query.message.reply_text("🔴 Выключение ПК отправлено")
 
 
 app = Application.builder().token(TOKEN).build()

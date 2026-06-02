@@ -1,12 +1,12 @@
 import requests
 import time
 import os
-import subprocess
 
-TOKEN = "8965348909:AAHmsgcYX2LhDBbGObiSVej2u7capeJI1tE"
+TOKEN = "ВСТАВЬ_СЮДА_ТОКЕН"
 OWNER_ID = 1460740609
 
 last_update_id = 0
+
 
 def execute_command(text):
     if text == "/dota":
@@ -14,6 +14,17 @@ def execute_command(text):
 
     elif text == "/shutdown":
         os.system("shutdown /s /t 0")
+
+    elif text == "/status":
+        # просто ответ через Telegram
+        requests.get(
+            f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+            params={
+                "chat_id": OWNER_ID,
+                "text": "🟢 ПК работает (agent online)"
+            }
+        )
+
 
 while True:
     try:
