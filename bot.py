@@ -33,7 +33,6 @@ def ping_pc():
 
 def get_menu():
     keyboard = [
-        [InlineKeyboardButton("🟢 Включить ПК", callback_data="on")],
         [InlineKeyboardButton("🎮 Запустить Dota 2", callback_data="dota")],
         [InlineKeyboardButton("📡 Статус ПК", callback_data="status")],
         [InlineKeyboardButton("🔴 Выключить ПК", callback_data="off")]
